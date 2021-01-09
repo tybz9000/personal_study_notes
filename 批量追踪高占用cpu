@@ -1,0 +1,37 @@
+#!/bin/bash
+#检测并打印使用cpu过高的线程堆栈信息
+
+#pid
+pid=${1}
+#查看数，比实际多两个
+threadCount=${2}
+#每个线程栈输出行数
+threadLineNumber=${3}
+
+if [ -z $pid ]
+then
+  echo 'pid can not be empty'
+  exit 1
+fi
+
+if [ -z threadCount ]
+then
+  threadCount = 10
+fi
+
+if [ -z printLineNumber ]
+then
+  printLineNumber = 10
+fi
+
+ps -mp ${pid} -o %cpu,tid|sort -k 1 -r > cpuCostTid.txt
+tidArrs="$(ps -mp ${pid} -o %cpu,tid|sort -k 1 -r|head -n ${threadCount}|awk -F ' ' '{if($2!="-" && $2!="TID")print $2}')"
+echo "***********************************************占用最高的tid*******************************************************"
+echo $tidArrs
+
+jstack -l $pid > stackInfo.txt
+for tid in $tidArrs
+do
+  echo "*************************************************ThreadId=$tid**************************************************"
+  grep "$(printf 'nid=0x%x' $tid)" -A $threadLineNumber stackInfo.txt
+done
