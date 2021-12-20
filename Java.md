@@ -209,13 +209,26 @@ bis.read();
 
 ## 泛型
 
-使用类型参数来解决类型的问题
+- 使用类型参数来解决类型的问题
+
+
+`在Collection中，不指定泛型通配符的话，默认是Object`
+
+- 编译时类型监测机制
+- 参数化类型，操作的数据诶性被指定为一个参数。
 
 #### 泛型类
 
 例子ArrayList<E>
 
+泛型类，在创建对象的时候，决定具体的泛型类型
+
 ```
+class 类名称 <泛型标识,泛型标识> {
+
+}
+
+
 //一个自定义的泛型类，有一个或多个类型变量的类，放在类名后面
 public class MyArrayList<E> {
     private Object[] dataArr;
@@ -229,6 +242,9 @@ public class MyArrayList<E> {
         size++;
     }
 }
+
+MyArrayList<Integer> myArrayList = new MyArrayList<Integer> ();
+//1.7之后 后边这个<Integer>可以省略
 ```
 
 #### 泛型方法
