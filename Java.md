@@ -209,13 +209,30 @@ bis.read();
 
 ## 泛型
 
-使用类型参数来解决类型的问题
+- 使用类型参数来解决类型的问题
+
+
+`在Collection中，不指定泛型通配符的话，默认是Object`
+
+- 编译时类型监测机制
+- 参数化类型，操作的数据诶性被指定为一个参数。
 
 #### 泛型类
 
 例子ArrayList<E>
 
+泛型类，在创建对象的时候，决定具体的泛型类型。不指定的话，就是Object
+
+- 泛型类不支持基础数据类型
+  - 由于类型擦除机制，泛型底层实际上是Object，而基础数据类型不是继承自Object的
+- 泛型类型，在逻辑上可以看做是多个不同的类型，但实际上是同一个
+
 ```
+class 类名称 <泛型标识,泛型标识> {
+
+}
+泛型类型标识，在类名称后面，一行最后
+
 //一个自定义的泛型类，有一个或多个类型变量的类，放在类名后面
 public class MyArrayList<E> {
     private Object[] dataArr;
@@ -229,11 +246,23 @@ public class MyArrayList<E> {
         size++;
     }
 }
+
+MyArrayList<Integer> myArrayList = new MyArrayList<Integer> ();
+//1.7之后 后边这个<Integer>可以省略
 ```
 
 #### 泛型方法
 
+调用方法的时候，制定参数类型
+
 ```
+public <T> List<T> methodName() {
+
+}
+类型定义在返回值前边，一行最前
+声明了泛型列表的方法才是泛型方法
+方法体，参数类型，返回值中可以使用。
+
 //一个类型转换的泛型方法
 public static <E, T> List<T> transform(List<E> input, Class<T> clazz) {
         if (CollectionUtils.isEmpty(input)) {
@@ -252,6 +281,16 @@ public static <E, T> List<T> transform(List<E> input, Class<T> clazz) {
         return res;
     }
 ```
+
+#### 类型通配符
+
+? 代替具体类型实参，类型通配符
+
+这玩意是类型实参，不是类型形参
+
+<? extends A>
+
+List<? extends A> 没办法添加元素，使用类型通配符的集合只能读取数据，不能写入数据
 
 extends 泛型变量限定符，限定只能取某类及其子类的泛型变量
 
@@ -521,10 +560,6 @@ static final int tableSizeFor(int cap) {
 int value() default 0;
 ```
 
-## 泛型
-
-java采用泛型擦除的机制来引入泛型，Java中的泛型仅仅是给编译器javac使用的，确保数据的安全性和免去强制类型转换问题。一旦编译完成，泛型相关数据全部擦除
-
 ## lambda表达式
 
 ### 原生lambda
@@ -577,9 +612,7 @@ class SayInterfaceImpl implement SayInterface {
 saySomething(new SayInterfaceImpl(), "hellow")
 ```
 
-```
 saySomething((s) -> print(s), "hellow")
-```
 
 ### 函数式接口包
 
