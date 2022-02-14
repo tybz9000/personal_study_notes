@@ -1,3 +1,16 @@
+# Spring
+
+对spring的理解
+
+框架，容器，基石
+
+- AOP 面向切面编程
+- IOC 控制反转
+
+默认单例
+
+- Bean来管理对象
+
 # Spring Boot
 
 约定大于配置
