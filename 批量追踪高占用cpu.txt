@@ -1,0 +1,28 @@
+#./max-cpu-thread.sh {pid}
+
+#!/bin/bash
+#检测并打印使用cpu过高的线程堆栈信息
+
+#pid 抓取java线程
+timeStr="$(date +%Y-%m-%d,%H:%M:%S)"
+pid="$(ps -ef | awk '{printf "%s %s\n",$8,$2}' | grep 'java' | awk '{print $2}')"
+if [ -z $pid ]
+then
+  echo 'pid can not be empty'
+  exit 1
+fi
+
+
+jstack -l $pid > JstackInfo${timeStr}.txt
+ps -mp ${pid} -o %cpu,tid|sort -k 1 -r|awk '{if($2!="-" && $2!="TID"){printf "%s 0x%x \n",$1,$2}}' > cpuCostTid${timeStr}.txt
+tidArrs="$(ps -mp ${pid} -o %cpu,tid|sort -k 1 -r|head -n 10|awk -F ' ' '{if($2!="-" && $2!="TID"){printf "0x%x \n",$2}}')"
+
+
+for tid in $tidArrs
+do
+  echo "*************************************************ThreadId=$tid**************************************************"
+  grep "$(printf 'nid=0x%x ' $tid)" -A 20 JstackInfo${timeStr}.txt
+done
+
+echo "***********************************************占用最高的tid*******************************************************"
+echo $tidArrs
