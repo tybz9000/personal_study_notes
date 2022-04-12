@@ -1,6 +1,7 @@
 # JAVA
 
 ## 面向对象
+一种软件开发方法，一种规范，对现实世界理解和抽象的方法
 
 ##### 封装
 
@@ -36,6 +37,12 @@ String不是基本数据类型
 经常进行数据变更的时候最好不使用string，因为string是不可变的
 
 用StringBuffer（线程安全），StringBuilder
+
+String StringBuffer StringBuilder 都是 char[] 实现的
+
+String中是final
+
+另外两个可变 StringBuffer加了sychronized
 
 ## 抽象类
 
@@ -95,7 +102,7 @@ javaio流：java与外部数据交互的io输送通道，数据传输的管道
 
 字节流、字符流：记事本打得开打不开的~
 
-节点流、处理流：
+节点流、处理流：节点流是端点，处理流是节点
 
 ```
 所有流继承自这四个：
