@@ -11,6 +11,39 @@
 
 - Bean来管理对象
 
+### SPEL
+
+- Spring 表达式语言（简称“SpEL”）是一种强大的表达式语言，支持在运行时查询和操作对象
+- 虽然 SpEL 是 Spring 产品组合中表达式评估的基础，但它不直接与 Spring 绑定，可以独立使用
+- 基本使用方法
+
+```
+SpelExpressionParser parser = new SpelExpressionParser();
+Expression exp = parser.parseExpression("'Hello World'"); 
+String value = (String) exp.getValue();
+```
+
+- 加入些运算
+
+```
+Expression exp = parser.parseExpression("'Hello World'.concat('!')");
+```
+
+- 对于对象的操作
+
+```
+ExpressionParser parser = new SpelExpressionParser();
+StandardEvaluationContext context = new StandardEvaluationContext();
+Integer i = 12345;
+context.setVariable("i", i);
+Object value = parser.parseExpression("#i==12346").getValue(context);
+return value.toString();
+```
+
+### CommandLineRunner
+
+在使用SpringBoot构建项目时，我们通常有一些预先数据的加载。那么SpringBoot提供了一个简单的方式来实现–CommandLineRunner。
+
 # Spring的配置
 
 - Bean的定义信息：BeanDefinition
@@ -127,31 +160,3 @@ DelegatingFilterProxy
 
 登录之后能够干什么
 
-# SPEL
-
-- Spring 表达式语言（简称“SpEL”）是一种强大的表达式语言，支持在运行时查询和操作对象
-- 虽然 SpEL 是 Spring 产品组合中表达式评估的基础，但它不直接与 Spring 绑定，可以独立使用
-- 基本使用方法
-
-```
-SpelExpressionParser parser = new SpelExpressionParser();
-Expression exp = parser.parseExpression("'Hello World'"); 
-String value = (String) exp.getValue();
-```
-
-- 加入些运算
-
-```
-Expression exp = parser.parseExpression("'Hello World'.concat('!')");
-```
-
-- 对于对象的操作
-
-```
-ExpressionParser parser = new SpelExpressionParser();
-StandardEvaluationContext context = new StandardEvaluationContext();
-Integer i = 12345;
-context.setVariable("i", i);
-Object value = parser.parseExpression("#i==12346").getValue(context);
-return value.toString();
-```
