@@ -90,6 +90,50 @@ Object.clone：浅拷贝，对象中的属性，只复制了内存地址
 
 序列化后反序列化：深拷贝
 
+## 内部类
+
+- 定义在类中的类是内部类
+
+- 静态内部类
+
+  - static修饰的内部类
+  - 如果是public的话，可以外部直接像使用一个普通类一样使用
+
+- 实例内部类，没有static修饰
+
+- 局部内部类，方法中的内部类
+
+- 匿名内部类：
+
+  - 匿名的，一个队接口实现的实例
+
+    ```
+    interface Compute{
+        int sum(int a,int b);
+    }
+    
+    class Mymath{
+    	public void SUM(Compute C, int x, int y) {
+    		return C.sum(x,y);
+    	}
+    }
+    
+    Mymath mymath = new Mymath();
+    mymath.SUM(new Compute(){
+    	public int sum(int a, int b) {
+    		return a+b;
+    	}
+    },100,100);
+    ```
+
+    实际上是现场写了一个接口实现
+
+    如果不用匿名内部类的话，就要现场手写一个局部内部类，来实现这个接口，再实例化
+
+    匿名内部类省略了这个过程
+
+    也是一种传递代码块的手段
+
 ## IO流
 
 javaio流：java与外部数据交互的io输送通道，数据传输的管道
