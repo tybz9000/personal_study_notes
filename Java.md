@@ -314,9 +314,23 @@ MyArrayList<Integer> myArrayList = new MyArrayList<Integer> ();
 //1.7之后 后边这个<Integer>可以省略
 ```
 
+##### 泛型接口
+
+类似于泛型类，是一类泛型类的一种规约。实现某一个泛型接口，标识这些泛型类有针对一系列类型的一种共同的方法。
+
+```
+public interface Generator<T> {
+
+	T next();
+
+}
+```
+
 #### 泛型方法
 
-调用方法的时候，指定参数类型
+- 调用方法的时候，指定参数类型
+- 泛型方法与泛型类没有关系
+- 设计上，能使用泛型方法，就不要使用泛型类
 
 ```
 public <T> List<T> methodName() {
