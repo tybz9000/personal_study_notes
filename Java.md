@@ -919,14 +919,15 @@ jdk提供了exceutor框架来实现线程池
 
 ## 异常处理
 
-throw 抛出一个具体的异常
+- throw 抛出一个具体的异常
 
-throws 声明一个方法可能抛出的所有异常信息, 声明但是不处理
+- throws 声明一个方法可能抛出的所有异常信息, 声明但是不处理
+
 
 **try-catch-finally**
 
-try了普通异常, 必须要catch掉. 
+- try了普通异常, 必须要catch掉. 
+  - 对应的try了RuntimeException，不一定必须要处理
+- 多个catch捕获异常时, 子类靠前, 父类靠后
 
-多个catch捕获异常时, 子类靠前, 父类靠后
-
-catch中return了, finally会在return前执行
+- catch中return了, finally会在return前执行

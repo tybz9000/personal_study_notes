@@ -1,8 +1,18 @@
 # Redis
 
+基于key-value键值对的存储系统
+
 #### 五种基本数据结构：
 
-String、List、Set、Hash、Zset
+String、
+
+List：底层实际上是个链表
+
+Set：是通过HashTable实现的
+
+Hash：类似于存了一个Map<String, Object>
+
+Zset：类似于Set，不过每个元素都有一个分数
 
 #### 其他功能
 
