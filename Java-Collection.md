@@ -2,19 +2,60 @@
 
 ### 集合
 
-数据可以存储基本类型，而集合只能存储对象
+数组可以存储基本类型，而集合只能存储对象
 
 数组长度不可变
 
 ```
-Collections
---List
---Set
---Queue
---SortedSet
+Collection接口
+--List接口
+--Set接口
+--Queue接口
+--AbstractCollection抽象类
+----AbstractList抽象类（实现List接口）
+------Vector
+------ArrayList
+------LinkedList（同时也实现了Queue）
+----AbstractQueue抽象类（实现Queue接口）
+------PriorityQueue
+----AbstractSet抽象类（实现Set接口）
+------HashSet
+--------LinkedHashSet
 Map
 --HashMap
 --TreeMap
+```
+
+### Collection
+
+```
+size()
+isEmpty()
+contains()
+iterator()//Collection实现了Iterable
+Object[] toArray()
+add()
+remove()
+containsAll()
+addAll()
+removeAll()
+removeIf()//根据条件删除特定的
+retainAll()
+clear()
+```
+
+### List
+
+```
+addAll()
+sort()
+get(int)
+set(int, E)
+add(int, E)
+remove(int)
+indexOf(Object)
+lastIndexOf(Object)
+subList(int,int)
 ```
 
 ### ArrayList
@@ -53,6 +94,53 @@ public ArrayList {
 	}
 }
 ```
+
+### HashSet
+
+- 基于hashMap实现
+- 值一个空Object
+
+### LinkedList
+
+- 双向链表
+
+- 记录起点 终点
+
+- ```
+  public class LinkedList<E>{
+  	transient Node<E> first;
+  	transient Node<E> last;
+  	
+  	public void add(E e) {
+  		final Node<E> l = last;
+  		final Node<E> newLast = new Node(e, null, last);
+  		last = newLast;
+  		if (l == null) {
+  			first = newLast;
+  		} else {
+  			l.next = newLast;
+  		}
+  		size++;
+  		modCount++;
+  	}
+  	
+  	private static class Node<E> {
+  		E item;
+  		Node<E> next;
+  		Node<E> prev;
+  	}
+  }
+  ```
+
+- 查找，折半一次
+
+### Vector
+
+- 类似于ArrayList的底层结构
+  - 动态数组
+- 线程安全，性能较低
+
+
 
 ### HashMap
 
@@ -113,48 +201,3 @@ static final int tableSizeFor(int cap) {
     0011  1111
     16
 ```
-
-### HashSet
-
-- 基于hashMap实现
-- 值一个空Object
-
-### LinkedList
-
-- 双向链表
-
-- 记录起点 终点
-
-- ```
-  public class LinkedList<E>{
-  	transient Node<E> first;
-  	transient Node<E> last;
-  	
-  	public void add(E e) {
-  		final Node<E> l = last;
-  		final Node<E> newLast = new Node(e, null, last);
-  		last = newLast;
-  		if (l == null) {
-  			first = newLast;
-  		} else {
-  			l.next = newLast;
-  		}
-  		size++;
-  		modCount++;
-  	}
-  	
-  	private static class Node<E> {
-  		E item;
-  		Node<E> next;
-  		Node<E> prev;
-  	}
-  }
-  ```
-
-- 查找，折半一次
-
-### Vector
-
-类似于ArrayList的底层结构
-
-线程安全，性能较低
