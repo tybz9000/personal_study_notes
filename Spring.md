@@ -63,7 +63,9 @@ return value.toString();
 @Service
 ```
 
+##### @Primary
 
+多个相同类型的bean，优先注册primary的，否则会报NoUniqueBeanDefinitionException
 
 # Spring Boot
 
