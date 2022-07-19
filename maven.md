@@ -98,8 +98,22 @@
 #### 仓库
 
 - 中央仓库
-- 镜像
-- 
+
+- 镜像：一般情况下拥有远程仓库的copy
+
+- 本地仓库
+
+#### Modules
+
+- 一个父级项目parent聚合很多子项目
+- 除了要打包的项目，其他module（包括parent）应该设置<packaging>pom</packaging>
+- 继承
+  - 通过<parent></parent>的方式来**继承**
+  - 子模块从父模块继承一切东西，包括依赖，插件配置等
+  - 主项目的配置作用就是用以给子项目继承
+- DepencyManagement & dependencies的区别
+  - DepencyManagement只声明了依赖，并不实现引入，因此子项目需要声明要用的依赖
+  - dependencies会被继承
 
   
 
