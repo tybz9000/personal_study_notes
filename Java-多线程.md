@@ -1,5 +1,271 @@
 # Thread类
 
+## 多线程
+
+### 进程：
+
+运行的程序，例如一个运行中的Java虚拟机实例
+
+### 线程：
+
+操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位
+
+### 并发：
+
+一个时间段内执行多个任务，可能是切换执行
+
+### 并行：
+
+同一个时刻，多个任务同时
+
+### 继承Thread类  
+
+Thread类本身就实现了Runnable接口
+
+### 实现Runnable接口
+
+- 实现Run方法
+- Runnable接口是典型的函数式接口，只有一个run方法
+- 执行方法要这样：new Thread(实现runnable的实例).start()
+  - Thread的构造参数里有runnable
+  - start是Thread的一个方法
+  - 实现runnable接口，实际上是实现了Thread的具体执行部分
+  - 调用start方法，关键是调用start0方法，这是个通过jni调用的native方法
+    - 该方法，实现调用了系统线程
+    - 回调了runable方法
+
+### Thread类通过静态代理
+
+- Thread是Runnable中执行方法的静态代理
+
+### 守护线程
+
+子线程结束时，守护线程自动结束
+
+setDeamon(true)
+
+#### 线程状态
+
+```
+public enum State {
+    /**
+     * Thread state for a thread which has not yet started.
+     * 创建状态
+     */
+    NEW,
+
+    /**
+     * Thread state for a runnable thread.  A thread in the runnable
+     * state is executing in the Java virtual machine but it may
+     * be waiting for other resources from the operating system
+     * such as processor.
+     * 可执行，不一定在执行
+     */
+    RUNNABLE,
+
+    /**
+     * Thread state for a thread blocked waiting for a monitor lock.
+     * A thread in the blocked state is waiting for a monitor lock
+     * to enter a synchronized block/method or
+     * reenter a synchronized block/method after calling
+     * {@link Object#wait() Object.wait}.
+     * 阻塞状态 等待monitor lock
+     */
+    BLOCKED,
+
+    /**
+     * Thread state for a waiting thread.
+     * A thread is in the waiting state due to calling one of the
+     * following methods:
+     * <ul>
+     *   <li>{@link Object#wait() Object.wait} with no timeout</li>
+     *   <li>{@link #join() Thread.join} with no timeout</li>
+     *   <li>{@link LockSupport#park() LockSupport.park}</li>
+     * </ul>
+     *
+     * <p>A thread in the waiting state is waiting for another thread to
+     * perform a particular action.
+     *
+     * For example, a thread that has called <tt>Object.wait()</tt>
+     * on an object is waiting for another thread to call
+     * <tt>Object.notify()</tt> or <tt>Object.notifyAll()</tt> on
+     * that object. A thread that has called <tt>Thread.join()</tt>
+     * is waiting for a specified thread to terminate.
+     * 等待状态 等待其他线程
+     */
+    WAITING,
+
+    /**
+     * Thread state for a waiting thread with a specified waiting time.
+     * A thread is in the timed waiting state due to calling one of
+     * the following methods with a specified positive waiting time:
+     * <ul>
+     *   <li>{@link #sleep Thread.sleep}</li>
+     *   <li>{@link Object#wait(long) Object.wait} with timeout</li>
+     *   <li>{@link #join(long) Thread.join} with timeout</li>
+     *   <li>{@link LockSupport#parkNanos LockSupport.parkNanos}</li>
+     *   <li>{@link LockSupport#parkUntil LockSupport.parkUntil}</li>
+     * </ul>
+     * 定时等待状态
+     */
+    TIMED_WAITING,
+
+    /**
+     * Thread state for a terminated thread.
+     * The thread has completed execution.
+     * 结束状态
+     */
+    TERMINATED;
+}
+```
+
+- 创建
+
+- 就绪：
+
+  - 创建，启动后进入就绪
+  - 阻塞解除后
+  - 运行释放cpu资源后
+
+- 阻塞：运行，阻塞后阻塞
+
+- 运行：就绪，获得cpu资源后运行
+
+- 死亡：线程执行完成
+
+  
+
+- NEW：还没启动的线程
+- RUNNABLE：正在执行，或者等待cpu资源中，就绪
+- BLOCKED：被阻塞,等待获取监视器锁进入synchronized代码块或者在调用Object.wait之后重新进入synchronized代码块
+- WAITING：无限期等待另一个线程执行特定动作后唤醒它,也就是调用Object.wait后会等待拥有同一个监视器锁的线程调用notify/notifyAll来进行唤醒
+- TIMED_WAITING：有时限的等待另一个线程执行特定动作
+- TERMINATED：已经完成了执行
+
+### 线程同步
+
+多个线程访问同一个变量时, 保持数据一致的手段是为线程同步
+
+(对于多进程而言, 进程有独立内存空间, 独立程序计数器, 很少产生数据冲突, 不会有同步问题)
+
+#### 线程操作
+
+获取当前线程
+
+**Thread.currentThread()**
+
+**start()**
+
+**Thread.sleep()**
+
+阻塞线程特定毫秒
+
+不会释放锁、不会让出监视器
+
+**yield()**
+
+线程礼让，转为就绪
+
+**join()**
+
+插队的肯定先走
+
+setName
+
+getName
+
+setPriority
+
+getPriority
+
+interrupt()
+
+中断，如果是阻塞状态就停止
+
+否则改变中断标识位
+
+**wait()**
+
+- 线程通信，告诉当前线程，释放锁，然后开始睡眠等待。
+
+- 直到有线程进入监视器调用notify() notifyAll()启用它
+- 必须要作用于同步代码块，否则 Exception in thread "main" java.lang.IllegalMonitorStateException
+- wait、notify、notifyAll是用在同步代码块上的，产生了数据竞争
+
+**notify()**
+
+随机唤醒一个在**一样的对象监视器**上等待的线程
+
+**notifyAll()**
+
+唤醒所有的在一样对象监视器上等待的线程
+
+
+
+```
+public class WaitNotify {
+
+  public static void main(String[] args) {
+
+    Object lock = new Object();
+    
+    // thread1
+    new Thread(() -> {
+
+        System.out.println("thread1 is ready");
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+
+        }
+        synchronized (lock) {
+            lock.notify();
+            System.out.println("thread1 is notify,but not exit synchronized");
+            System.out.println("thread1 is exit synchronized");
+        }
+
+
+    }).start();
+
+    // thread2
+    new Thread(() -> {
+        System.out.println("thread2 is ready");
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+
+        }
+        synchronized (lock) {
+            try {
+                System.out.println("thread2 is waiting");
+                lock.wait();
+                System.out.println("thread2 is awake");
+            } catch (InterruptedException e) {
+            }
+        }
+    }).start();
+  }
+}
+//线程一二同时开始执行，线程二sleep一秒后等待，
+//线程一sleep两秒后唤醒
+//线程一二在同一个同步代码块，在对象监视器上
+thread1 is ready
+thread2 is ready
+thread2 is waiting
+thread1 is notify,but not exit synchronized
+thread 1 is exit synchronized
+thread2 is awake
+
+```
+
+**对象监视器**
+
+java语言中，对象监视器和锁概念上是接近的
+
+Java允许任何对象都可以成为一个锁也叫做对象监视器
+
 ### 成员变量
 
 - name：线程名
@@ -35,5 +301,63 @@
 
 - dumpStack()
   - 输出栈信息
-
+  
+- #### Synchronized
+  
+  **java内置锁**
+  
+  - 代码块
+  - 方法：作用于实例，不参与继承，父类方法有，也没法继承到子类，
+  - 静态方法：作用于类，作用到所有访问到这个类的对象
+  - 类：作用于类，类似于静态方法，也是给整个类加锁
+  
+  进入同步代码块、同步类时获取**对象**内置锁
+  
+  是互斥锁，如果另外一个线程要获得这个锁，必须阻塞（Blocked）等待
+  
+  #### 锁
+  
+  ##### 乐观vs悲观
+  
+  - 乐观锁：要加锁的不一定会被改，改了我再说。记录更新id之类的
+    - 多读、乐观锁
+    - CAS：比较并交换，操作前拿出值，我现在要写的时候，原值拿出来再比较，不变则操作，否则失败。
+  - 悲观锁：要加锁的一定是有人要改的，都锁住，谁也不能动。（synchronized、Lock）
+    - 多写、悲观锁
+  
+  ##### 独享锁vs共享锁
+  
+  - 独享锁：锁同时只能被一个线程持有
+  
+    - 往往用作写锁
+  - 共享锁：锁同时可以被多个线程持有
+  
+    - 往往用作读锁
+  - 互斥锁、读写锁：独享、共享锁的一种实现
+  
+    - ReadWriteLock：读写锁
+    - ReenTrantLock：
+  
+  ### 线程池
+  
+  线程池可以看做是线程的**集合**，在没有任务时，线程处于空闲状态。请求到来时，线程池给请求分配一个空闲的线程，请求完成后，线程回到线程池中，这样就完成了线程的**重用**
+  
+  ​	减少了线程总的生命周期开销
+  
+  **核心线程**：永不回收的线程
+  
+  **阻塞队列**：干不完的活儿
+  
+  **非核心线程**：忙碌的时候使用的线程
+  
+  **空闲时间**：非核心线程空闲到一定时间后，回收
+  
+  **饱和策略**：
+  
+  - AbortPolicy(抛出一个异常，默认的)
+  - DiscardPolicy(新提交的任务直接被抛弃)
+  - DiscardOldestPolicy（丢弃队列里最老的任务，将当前这个任务继续提交给线程池）
+  - CallerRunsPolicy（交给线程池调用所在的线程进行处理，即将某些任务回退到调用者)
+  
+  ![image-20210705204424134](C:\Users\taiyang\Documents\image-20210705204424134.png)
 
