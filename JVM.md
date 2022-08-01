@@ -239,6 +239,19 @@ GC Root根：
 
 #### 执行引擎
 
+#### 垃圾回收器
+
+- Serial GC：新生代垃圾回收器，单线程，Stop The World，基于**复制**算法
+- Parallel Scavenge：新生代垃圾回收器，采用**复制**算法，自适应调节新生代大小、Eden S区比例等。
+  - 旨在保证程序到达一个可控制的吞吐量（用于运行用户代码的时间/CPU消耗总时间）
+  - 吞吐量低，占用更多内存，更快GC
+  - 吞吐量高，降低内存占用，更慢GC
+- ParNew: Serial的多线程版本，采用**复制**算法
+- Serial Old: Serial的老版本，基于**标记整理算法**
+- CMS：采用**标记清除**算法，减少停顿时间，但会内存碎片化
+- G1：采用**标记整理**算法，将内存分为若干个Region，每次整理一个Region，各个Region有自己的代。
+  - 不使用复制算法，所以不需要设置S1，S2两个Survival
+
 # JVM调优
 
 #### 什么时候需要JVM调优
@@ -267,23 +280,36 @@ GC Root根：
 - Survival太小：太早进入老年代
 - Survival太大：浪费内存
 
-
+1. 标准参数：-version -help
+2. X参数
+3. XX参数
+   1. 布尔类型XX参数：-XX:+PrintGCDetails +表示开启
+   2. KV类型XX参数：-XX:NewSize=256M
 
 - -Xms4G：JVM启动时整个堆的初始化大小
+
 - -Xmx4G：JVM启动时整个堆的最大值
+
 - -Xmn2G：年轻代空间的大小
+
+- -Xss2G：栈大小
+
 - -XX:SurvivorRatio=1：年轻代空间中两个S区同Eden空间大小比例
   - 默认为8，S0:S1:Eden = 1:1:8
     - Eden区比较大，相对YGC次数比较少。但YGC的时候，Eden区占用空间比较大，stw的时间比较长。
+  
 - -XX:+UseG1GC：使用垃圾回收器类型，1.7以后推荐使用G1GC
-  - Serial GC：新生代垃圾回收器，单线程，Stop The World，基于**复制**算法
-  - Parallel Scavenge：新生代垃圾回收器，采用**复制**算法，自适应调节新生代大小、Eden S区比例等。
-    - 旨在保证程序到达一个可控制的吞吐量（用于运行用户代码的时间/CPU消耗总时间）
-    - 吞吐量低，占用更多内存，更快GC
-    - 吞吐量高，降低内存占用，更慢GC
-  - ParNew: Serial的多线程版本，采用**复制**算法
-  - Serial Old: Serial的老版本，基于**标记整理算法**
-  - CMS：采用**标记清除**算法，减少停顿时间，但会内存碎片化
-  - G1：采用**标记整理**算法，将内存分为若干个Region，每次整理一个Region，各个Region有自己的代。
-    - 不使用复制算法，所以不需要设置S1，S2两个Survival
+
+- -XX:+UseTlab：使用tlab，默认打开的，在Eden区对各个线程分配一定份额的缓存用以初始化对象
+
+- -XX:+PrintHeapAtGC：GC时打印堆信息
+
+- -XX:+PrintGC：打印GC信息
+
+  - -XX:+PrintGCDetails
+  - -XX:+PrintGCDateStamps
+
+  -XX:HeapDumpPath=/usr/local/dump：dump文件路径或者名称
+
+- -XX:+HeapDumpOnOutOfMemoryError：OOM时打印堆信息
 
