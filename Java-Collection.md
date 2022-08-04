@@ -2,7 +2,8 @@
 
 ### 集合
 
-数组可以存储基本类型，而集合只能存储对象
+- 数组可以存储基本类型，而集合只能存储对象
+  - 集合存储的都是包装的基本数据类型
 
 数组长度不可变
 
@@ -26,7 +27,7 @@ Map
 --TreeMap
 ```
 
-### Collection
+## Collection
 
 ```
 size()
@@ -46,6 +47,8 @@ clear()
 
 ### List
 
+有序的collection，此接口的用户可以对列表中每个元素的插入位置进行精确的控制。用户可以根据元素的整数索引访问元素，并搜索列表中的元素。
+
 ```
 addAll()
 sort()
@@ -58,7 +61,7 @@ lastIndexOf(Object)
 subList(int,int)
 ```
 
-### ArrayList
+#### ArrayList
 
 - 有序的，基于数组
 - 线程不安全
@@ -95,12 +98,9 @@ public ArrayList {
 }
 ```
 
-### HashSet
+#### LinkedList
 
-- 基于hashMap实现
-- 值一个空Object
-
-### LinkedList
+- 同时也实现了Queue
 
 - 双向链表
 
@@ -134,13 +134,36 @@ public ArrayList {
 
 - 查找，折半一次
 
-### Vector
+#### Vector
 
 - 类似于ArrayList的底层结构
   - 动态数组
 - 线程安全，性能较低
 
+#### Stack
 
+继承vector
+
+### Set
+
+不包含重复元素的collection
+
+#### HashSet
+
+- 基于hashMap实现
+- 值一个空Object
+
+Queue：队列通常已FIFO的方式排序各个元素，并按FIFO的方式插入元素
+
+#### LinkedHashSet
+
+继承HashSet，用LinkedHashMap实现
+
+#### TreeSet
+
+用TreeMap来实现
+
+## Map
 
 ### HashMap
 
@@ -207,9 +230,23 @@ static final int tableSizeFor(int cap) {
         n |= n >>> 16; //最终整成 0000 0000 1111 1111这样的~ int范围都覆盖那种
         return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
     }
-    9
-    1001
-    0100  1101
-    0011  1111
-    16
 ```
+
+### Hashtable
+
+- Hashtable是synchronized的，适用于多线程环境；hashmap不是同步的，适用于单线程环境
+- 也是**数组加链表**
+  - HashTable未启用红黑树
+- 不允许键为null
+- 直接使用key的hashCode，而hashMap的哈希算法是自己的
+- HashMap继承AbstractMap；Hashtable继承Dictionary
+
+### LinkedHashMap
+
+- 继承自Hashmap
+- 在hashmap的基础上，使用了一对双向链表来记录元素添加的顺序
+
+### TreeMap
+
+- 有序集合
+- 整体通过红黑树实现
