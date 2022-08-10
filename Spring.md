@@ -71,29 +71,144 @@ return value.toString();
 
 约定大于配置
 
+#### 启动流程
+
+- new SpringApplication()
+
+```java
+public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySources) {
+        //初始化配置，配置source
+    	this.sources = new LinkedHashSet();
+        this.bannerMode = Mode.CONSOLE;
+        this.logStartupInfo = true;
+        this.addCommandLineProperties = true;
+        this.addConversionService = true;
+        this.headless = true;
+        this.registerShutdownHook = true;
+        this.additionalProfiles = new HashSet();
+        this.isCustomEnvironment = false;
+        this.resourceLoader = resourceLoader;
+        Assert.notNull(primarySources, "PrimarySources must not be null");
+        this.primarySources = new LinkedHashSet(Arrays.asList(primarySources));
+    	//配置是否为web环境
+        this.webApplicationType = WebApplicationType.deduceFromClasspath(); 
+		//创建初始化构造器, 得到所需工厂集合的实例 来自 META-INF/spring.factories
+this.setInitializers(this.getSpringFactoriesInstances(ApplicationContextInitializer.class));
+    	//创建应用监听器 来自 META-INF/spring.factories
+       this.setListeners(this.getSpringFactoriesInstances(ApplicationListener.class));
+    	//配置应用的主方法所在的类    
+    	this.mainApplicationClass = this.deduceMainApplicationClass();
+    }
+```
+
+- SpringApplication.run()
+  - 启动应用
+
+```
+public ConfigurableApplicationContext run(String... args) {
+    
+        <!--1、这个是一个计时器，没什么好说的-->
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
+		ConfigurableApplicationContext context = null;
+		Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
+		
+    
+        <!--2、这个也不是重点，就是设置了一些环境变量-->
+        configureHeadlessProperty();
+ 
+ 
+        <!--3、获取事件监听器SpringApplicationRunListener类型，并且执行starting()方法-->
+		SpringApplicationRunListeners listeners = getRunListeners(args);
+		listeners.starting();
+ 
+		try {
+ 
+ 
+            <!--4、把参数args封装成DefaultApplicationArguments，这个了解一下就知道-->
+			ApplicationArguments applicationArguments = new DefaultApplicationArguments(
+					args);
+ 
+            <!--5、这个很重要准备环境了，并且把环境跟spring上下文绑定好，并且执行environmentPrepared()方法-->
+			ConfigurableEnvironment environment = prepareEnvironment(listeners,
+					applicationArguments);
+ 
+            <!--6、判断一些环境的值，并设置一些环境的值-->
+			configureIgnoreBeanInfo(environment);
+ 
+            <!--7、打印banner-->
+			Banner printedBanner = printBanner(environment);
+ 
+ 
+            <!--8、创建上下文，根据项目类型创建上下文-->
+			context = createApplicationContext();
+ 
+ 
+            <!--9、获取异常报告事件监听-->
+			exceptionReporters = getSpringFactoriesInstances(
+					SpringBootExceptionReporter.class,
+					new Class[] { ConfigurableApplicationContext.class }, context);
+ 
+ 
+            <!--10、准备上下文，执行完成后调用contextPrepared()方法,contextLoaded()方法-->
+			prepareContext(context, environment, listeners, applicationArguments,
+					printedBanner);
+ 
+ 
+            <!--11、这个是spring启动的代码了，这里就回去里面就回去扫描并且初始化单实列bean了-->
+            //这个refreshContext()加载了bean，还启动了内置web容器，需要细细的去看看
+			refreshContext(context);
+ 
+            <!--12、啥事情都没有做-->
+			afterRefresh(context, applicationArguments);
+			stopWatch.stop();
+			if (this.logStartupInfo) {
+				new StartupInfoLogger(this.mainApplicationClass)
+						.logStarted(getApplicationLog(), stopWatch);
+			}
+ 
+    
+            <!--13、执行ApplicationRunListeners中的started()方法-->
+			listeners.started(context);
+ 
+            <!--执行Runner（ApplicationRunner和CommandLineRunner）-->
+			callRunners(context, applicationArguments);
+		}
+		catch (Throwable ex) {
+			handleRunFailure(context, listeners, exceptionReporters, ex);
+			throw new IllegalStateException(ex);
+		}
+		listeners.running(context);
+		return context;
+```
+
+
+
+#### maven坐标
+
 maven坐标都是spring-boot-starter-
 
-banner
+- spring-boot-starter-parent jar包版本，配置文件定义，资源位置定义
 
-spring-boot-starter-parent jar包版本，配置文件定义，资源位置定义
+- spring-boot-dependencies 依赖位置
 
-spring-boot-dependencies 依赖位置
+- spring-boot-starter-parent   springboot项目-parent 
 
-spring-boot-starter-parent   springboot项目-parent 
 
 配置文件的扫描在这里配置
 
-sprint-boot-starter- 启动器。springboot会把这些场景都打包成这样的
+- sprint-boot-starter- 启动器。springboot会把这些场景都打包成这样的
+
 
 @SpringBootApplication
 
-[--@SpringBootConfiguration](http://--@SpringBootConfiguration) 配置类
+@SpringBootConfiguration配置类
 
-[--@EnableAutoContiguration](http://--@EnableAutoContiguration)
+@EnableAutoContiguration
 
-----@AutoConfigurationPackage::AutoConfigurationPackages.Registrar.class 扫描启动器所在的包及其子包下的自定义类。由它来注册的
+@AutoConfigurationPackage::AutoConfigurationPackages.Registrar.class 扫描启动器所在的包及其子包下的自定义类。由它来注册的
 
-----@EnableAutoConfigurationImportSelector
+@EnableAutoConfigurationImportSelector
 
 #### springboot prifiles
 
