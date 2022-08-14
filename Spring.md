@@ -4,11 +4,21 @@
 
 框架，容器，基石
 
-- AOP 面向切面编程
+- #### **AOP 面向切面编程**
+  
   - Spring-AOP是基于动态代理实现的
   - 创建Bean的时候，实际上是创建的Bean的代理类
+  
+- #### **IOC 控制反转**
 
-- IOC 控制反转
+- #### DI 依赖注入
+
+  - IOC容器，放的bean，使用hashmap实现
+  - 根据需要，由容器生产对象
+    - 需求：XML文件
+    - 需求：注解
+    - 需求：java配置类
+
 
 默认单例
 
@@ -46,6 +56,35 @@ return value.toString();
 ### CommandLineRunner
 
 在使用SpringBoot构建项目时，我们通常有一些预先数据的加载。那么SpringBoot提供了一个简单的方式来实现–CommandLineRunner。
+
+### Spring的流程
+
+- 对象的定义信息
+  - xml
+  - 注解
+  - java配置类
+- 解析对象定义信息
+  - BeanDefinitionReader
+- Bean生命周期
+  - 实例化
+  - 属性设置
+  - 初始化
+  - 销毁
+- 容器：生产对象
+  - BeanDefinition：Bean定义信息
+    - BeanFactoryPostProcessor：后置处理器，增强器，在工厂之前
+  - BeanFactory：创建bean
+    - 反射 
+      - Constructor con = Class.getConstructor()；
+      - Object obj = con.newInstance();
+    - BeanPostProcessor：后置处理器，增强器，Bean后期增强器。工厂实例化后，初始化之前
+    - 特别的，与FactoryBean的区别，
+    - FactoryBean用以定制化Bean
+      - 唯一的定制化的复杂Bean
+  - Enviroment环境
+  - 
+
+
 
 # Spring的配置
 
