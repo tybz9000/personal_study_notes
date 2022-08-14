@@ -1,3 +1,7 @@
+---
+typora-copy-images-to: ./
+---
+
 ## Collection
 
 ### 集合
@@ -7,25 +11,9 @@
 
 数组长度不可变
 
-```
-Collection接口
---List接口
---Set接口
---Queue接口
---AbstractCollection抽象类
-----AbstractList抽象类（实现List接口）
-------Vector
-------ArrayList
-------LinkedList（同时也实现了Queue）
-----AbstractQueue抽象类（实现Queue接口）
-------PriorityQueue
-----AbstractSet抽象类（实现Set接口）
-------HashSet
---------LinkedHashSet
-Map
---HashMap
---TreeMap
-```
+![java集合](D:\学习文件3\java集合-16594453454992.png)
+
+![java集合2](D:\学习文件3\java集合2-16594458955919.png)
 
 ## Collection
 

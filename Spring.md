@@ -5,6 +5,9 @@
 框架，容器，基石
 
 - AOP 面向切面编程
+  - Spring-AOP是基于动态代理实现的
+  - 创建Bean的时候，实际上是创建的Bean的代理类
+
 - IOC 控制反转
 
 默认单例
@@ -69,7 +72,12 @@ return value.toString();
 
 # Spring Boot
 
-约定大于配置
+- 脚手架
+- 约定大于配置
+- 快速构建项目
+- 内嵌web容器
+- 自动配置，自动管理依赖
+- 自带应用监控 spring-boot-actuator
 
 #### 启动流程
 
@@ -104,62 +112,64 @@ this.setInitializers(this.getSpringFactoriesInstances(ApplicationContextInitiali
 - SpringApplication.run()
   - 启动应用
 
-```
+```java
 public ConfigurableApplicationContext run(String... args) {
     
-        <!--1、这个是一个计时器，没什么好说的-->
+        //1、这个是一个计时器，没什么好说的
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		ConfigurableApplicationContext context = null;
 		Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
 		
     
-        <!--2、这个也不是重点，就是设置了一些环境变量-->
+        //2、这个也不是重点，就是设置了一些环境变量-->
         configureHeadlessProperty();
  
  
-        <!--3、获取事件监听器SpringApplicationRunListener类型，并且执行starting()方法-->
+        //3、获取事件监听器SpringApplicationRunListener类型，并且执行starting()方法-->
 		SpringApplicationRunListeners listeners = getRunListeners(args);
 		listeners.starting();
  
 		try {
  
  
-            <!--4、把参数args封装成DefaultApplicationArguments，这个了解一下就知道-->
+            //4、把参数args封装成DefaultApplicationArguments，这个了解一下就知道-->
 			ApplicationArguments applicationArguments = new DefaultApplicationArguments(
 					args);
  
-            <!--5、这个很重要准备环境了，并且把环境跟spring上下文绑定好，并且执行environmentPrepared()方法-->
+            //5、这个很重要准备环境了，并且把环境跟spring上下文绑定好，并且执行environmentPrepared()方法-->
 			ConfigurableEnvironment environment = prepareEnvironment(listeners,
 					applicationArguments);
  
-            <!--6、判断一些环境的值，并设置一些环境的值-->
+            //6、判断一些环境的值，并设置一些环境的值-->
 			configureIgnoreBeanInfo(environment);
  
-            <!--7、打印banner-->
+            //7、打印banner-->
 			Banner printedBanner = printBanner(environment);
  
  
-            <!--8、创建上下文，根据项目类型创建上下文-->
+            //8、创建ApplicationContext容器，即我们说的IOC容器【重要】
 			context = createApplicationContext();
  
  
-            <!--9、获取异常报告事件监听-->
+            //9、获取异常报告事件监听-->
 			exceptionReporters = getSpringFactoriesInstances(
 					SpringBootExceptionReporter.class,
 					new Class[] { ConfigurableApplicationContext.class }, context);
  
  
-            <!--10、准备上下文，执行完成后调用contextPrepared()方法,contextLoaded()方法-->
+            //10、准备上下文，执行完成后调用contextPrepared()方法,contextLoaded()方法-->
+            //enviroment 一些profiles，来自application.yml
+            //context 应用上下文
 			prepareContext(context, environment, listeners, applicationArguments,
 					printedBanner);
  
  
-            <!--11、这个是spring启动的代码了，这里就回去里面就回去扫描并且初始化单实列bean了-->
+            //11、这个是spring启动的代码了，这里就回去里面就回去扫描并且初始化单实列bean了-->
             //这个refreshContext()加载了bean，还启动了内置web容器，需要细细的去看看
 			refreshContext(context);
  
-            <!--12、啥事情都没有做-->
+            //12、啥事情都没有做-->
 			afterRefresh(context, applicationArguments);
 			stopWatch.stop();
 			if (this.logStartupInfo) {
@@ -168,10 +178,10 @@ public ConfigurableApplicationContext run(String... args) {
 			}
  
     
-            <!--13、执行ApplicationRunListeners中的started()方法-->
+            //13、执行ApplicationRunListeners中的started()方法-->
 			listeners.started(context);
  
-            <!--执行Runner（ApplicationRunner和CommandLineRunner）-->
+            //执行Runner（ApplicationRunner和CommandLineRunner）-->
 			callRunners(context, applicationArguments);
 		}
 		catch (Throwable ex) {
@@ -182,7 +192,22 @@ public ConfigurableApplicationContext run(String... args) {
 		return context;
 ```
 
+#### 配置类
 
+- 广义的配置类：@Component直接或间接修饰的类，即是Spring组建
+  - @Service 注解被@Component修饰
+- 狭义的配置类：@Configuration类
+
+@Configuration
+
+一个Configuration等同于一个spring的xml配置
+
+@Bean
+
+一个Bean等同一个spring的xml配置里一个bean
+
+- Auto-Configuration自动配置
+- Autowire自动装配
 
 #### maven坐标
 
