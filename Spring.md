@@ -136,8 +136,9 @@ public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySourc
         this.isCustomEnvironment = false;
         this.resourceLoader = resourceLoader;
         Assert.notNull(primarySources, "PrimarySources must not be null");
+    	//primarySources就是启动类
         this.primarySources = new LinkedHashSet(Arrays.asList(primarySources));
-    	//配置是否为web环境
+    	//应用程序类型：REACTIVE、SERVLET(通常)、NONE
         this.webApplicationType = WebApplicationType.deduceFromClasspath(); 
 		//创建初始化构造器, 得到所需工厂集合的实例 来自 META-INF/spring.factories
 this.setInitializers(this.getSpringFactoriesInstances(ApplicationContextInitializer.class));
