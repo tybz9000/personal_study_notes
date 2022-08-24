@@ -1,6 +1,12 @@
-# Thread类
-
 ## 多线程
+
+并发编程三要素
+
+- 原子性
+- 可见性：
+  - 线程的变更，应该对其他线程可见
+  - 常见的实现方法：锁
+- 有序性
 
 ### 进程：
 
@@ -34,7 +40,17 @@ Thread类本身就实现了Runnable接口
     - 该方法，实现调用了系统线程
     - 回调了runable方法
 
-### Thread类通过静态代理
+### 实现Callable接口
+
+- 实现Callable可以实现多线程返回值
+- 实现call方法
+- 可以抛出异常
+- 使用ThreadPoolExecutor.submit(Callable c)来执行，将Callable对象推给线程池执行，返回Feature对象
+- feature对象通过get()方法获取返回值
+
+# Thread类
+
+#### Thread类通过静态代理
 
 - Thread是Runnable中执行方法的静态代理
 
@@ -360,4 +376,68 @@ Java允许任何对象都可以成为一个锁也叫做对象监视器
   - CallerRunsPolicy（交给线程池调用所在的线程进行处理，即将某些任务回退到调用者)
   
   ![image-20210705204424134](C:\Users\taiyang\Documents\image-20210705204424134.png)
+
+# 线程池
+
+*线程池*是一种多线程处理形式，处理过程中将任务添加到队列，然后在创建线程后自动启动这些任务
+
+#### 线程池的优势
+
+- 降低系统资源开销，复用线程，减少线程创建和销毁的开销
+- 提高响应速度，想要有线程用，就有线程用，不用新创建
+- 提高系统可靠性，不会无限制创建线程，被打挂
+
+#### 线程池创建方式
+
+- 通过ThreadPoolExecutor手动创建线程池
+
+```java
+ThreadPoolExecutor threadPool = new ThreadPoolExecutor(5, 10, 100, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10));
+threadPool.execute(() -> say("hello"))
+```
+
+- 通过Executors类创建线程池
+  - 封装好了ThreadPoolExecutor构造器的参数
+  - newFixedThreadPool(int nThreads)
+    - 创建固定大小线程池
+  - newSingleThreadExecutor()
+    - 创建只有一个线程大小的线程池
+  - newCachedThreadPool()
+    - 创建不限大小的线程池
+
+ThreadPoolExecutor
+
+```
+// Java线程池的完整构造函数
+public ThreadPoolExecutor(
+  int corePoolSize, 
+  // 线程池长期维持的线程数，即使线程处于Idle状态，也不会回收。
+  int maximumPoolSize, 
+  // 线程数的上限
+  long keepAliveTime, 
+  TimeUnit unit, 
+  // 超过corePoolSize的线程的idle时长，
+  // 超过这个时间，多余的线程会被回收。
+  BlockingQueue<Runnable> workQueue, 
+  // 任务的排队队列
+  ThreadFactory threadFactory, 
+  // 新线程的产生方式
+  RejectedExecutionHandler handler
+  // 拒绝策略
+  ) 
+```
+
+ExecutorService接口
+
+- 包含submit方法
+
+### 线程池状态
+
+| 状态       | 含义                                                         |
+| ---------- | ------------------------------------------------------------ |
+| RUNNING    | 允许提交并处理任务                                           |
+| SHUTDOWN   | 不允许提交新的任务，但是会处理完已提交的任务                 |
+| STOP       | 不允许提交新的任务，也不会处理阻塞队列中未执行的任务，并设置正在执行的线程的中断标志位 |
+| TIDYING    | 所有任务执行完毕，池中工作的线程数为0，等待执行terminated()勾子方法 |
+| TERMINATED | terminated()勾子方法执行完毕                                 |
 
