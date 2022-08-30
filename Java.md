@@ -617,11 +617,56 @@ jdk提供了exceutor框架来实现线程池
 
 - throws 声明一个方法可能抛出的所有异常信息, 声明但是不处理
 
-
-**try-catch-finally**
+##### **try-catch-finally**
 
 - try了普通异常, 必须要catch掉. 
   - 对应的try了RuntimeException，不一定必须要处理
 - 多个catch捕获异常时, 子类靠前, 父类靠后
-
 - catch中return了, finally会在return前执行
+
+##### java异常体系结构
+
+java异常体系是Throwable及其子类
+
+- Throwable
+  - Error
+    - 致命的，无法恢复
+    - OutOfMemoryError
+    - StackOverflowError
+- Exception 可以恢复的异常
+  - RuntimeException
+  - 其他Exception
+
+##### unchecked异常
+
+- RuntimeException
+- Error
+
+##### checked异常
+
+- 需要显示的catch，或者抛出
+- 编译阶段就是可以预见的（所以又是编译时异常）
+
+##### 默认异常处理
+
+一个方法如果发生异常，会创建一个异常对象，并转交给JVM。JVM会顺着调用栈去看是否有可以处理异常的代码，如果有，则调用异常处理代码。如果没有找到，会将异常转给默认的异常处理器（JVM的一部分，打印异常信息，终止应用程序）
+
+#### 异常处理原则
+
+延迟捕获，异常发生时，不应该立即捕获，应该考虑当前作用域是否有能力处理，没有的话，应该继续向上抛出
+
+
+
+## 字节码
+
+.class就是字节码文件
+
+示例：
+
+```
+cafe babe 0000 0033 0015 0a00 0400 1109
+0003 0012 0700 1307 0014 0100 0161 0100
+```
+
+字节码文件是java 一次编译，到处运行的实现。是虚拟机运行
+
