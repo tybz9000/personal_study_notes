@@ -123,7 +123,8 @@ return value.toString();
 - new SpringApplication()
 
 ```java
-public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySources) {
+	//1
+	public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySources) {
         //初始化配置，配置source
     	this.sources = new LinkedHashSet();
         this.bannerMode = Mode.CONSOLE;
@@ -134,20 +135,60 @@ public SpringApplication(ResourceLoader resourceLoader, Class<?>... primarySourc
         this.registerShutdownHook = true;
         this.additionalProfiles = new HashSet();
         this.isCustomEnvironment = false;
+    	//资源加载器，启动时为空
         this.resourceLoader = resourceLoader;
         Assert.notNull(primarySources, "PrimarySources must not be null");
-    	//primarySources就是启动类
+    	//从启动类进来时primarySources就是启动类
         this.primarySources = new LinkedHashSet(Arrays.asList(primarySources));
     	//应用程序类型：REACTIVE、SERVLET(通常)、NONE
         this.webApplicationType = WebApplicationType.deduceFromClasspath(); 
-		//创建初始化构造器, 得到所需工厂集合的实例 来自 META-INF/spring.factories
-this.setInitializers(this.getSpringFactoriesInstances(ApplicationContextInitializer.class));
+		//创建初始化构造器, 得到所需工厂集合的实例 来自 META-INF/spring.factories goto1
+		this.setInitializers(this.getSpringFactoriesInstances(ApplicationContextInitializer.class));
     	//创建应用监听器 来自 META-INF/spring.factories
        this.setListeners(this.getSpringFactoriesInstances(ApplicationListener.class));
     	//配置应用的主方法所在的类    
     	this.mainApplicationClass = this.deduceMainApplicationClass();
     }
+
+	//2
+    private <T> Collection<T> getSpringFactoriesInstances(Class<T> type, Class<?>[] parameterTypes, Object... args) {
+        //获取类加载器
+        ClassLoader classLoader = this.getClassLoader();
+        //从配置文件中，获取springFactory的名字 goto3
+        Set<String> names = new LinkedHashSet(SpringFactoriesLoader.loadFactoryNames(type, classLoader));
+        List<T> instances = this.createSpringFactoriesInstances(type, parameterTypes, classLoader, args, names);
+        AnnotationAwareOrderComparator.sort(instances);
+        return instances;
+    }
+
+	//3
+	public static List<String> loadFactoryNames(Class<?> factoryClass, @Nullable ClassLoader classLoader) {
+        //这个name传了两次
+        //第一次是ApplicationContextInitializer
+        //第二次是ApplicationListener
+        String factoryClassName = factoryClass.getName();
+        //loadSpringFactories这个方法，去读了spring.factories
+        //从spring.factories拿到我们这次要的factoryNames
+        return (List)loadSpringFactories(classLoader).getOrDefault(factoryClassName, Collections.emptyList());
+    }
+
 ```
+
+- spring.factories有一堆，逐个获取
+
+```
+spring.factories 一个key = 一堆value，全都拿出来
+spring-boot自己的有8个
+//这次要加载的就是这堆东西
+org.springframework.context.ApplicationContextInitializer=\
+org.springframework.boot.context.ConfigurationWarningsApplicationContextInitializer,\
+org.springframework.boot.context.ContextIdApplicationContextInitializer,\
+org.springframework.boot.context.config.DelegatingApplicationContextInitializer,\
+org.springframework.boot.web.context.ServerPortInfoApplicationContextInitializer
+
+```
+
+
 
 - SpringApplication.run()
   - 启动应用

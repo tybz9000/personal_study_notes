@@ -74,3 +74,4 @@ redisTemplate.opsForValue() 后面的操作和jedis一摸一样的。可以练�
 - 入列：入列数据，score是期望执行的时间
 - 出列：通过定时调用，通过**lua脚本**调用，使用redis：zrangebyscore方法筛选特定score区间的数据，分数区间是0到当前时间
 
+# Redis集群
