@@ -223,6 +223,7 @@ static final int tableSizeFor(int cap) {
 ### Hashtable
 
 - Hashtable是synchronized的，适用于多线程环境；hashmap不是同步的，适用于单线程环境
+- 每个方法都加了synchronized
 - 也是**数组加链表**
   - HashTable未启用红黑树
 - 不允许键为null
