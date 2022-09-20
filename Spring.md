@@ -146,7 +146,7 @@ return value.toString();
 		this.setInitializers(this.getSpringFactoriesInstances(ApplicationContextInitializer.class));
     	//创建应用监听器 来自 META-INF/spring.factories
        this.setListeners(this.getSpringFactoriesInstances(ApplicationListener.class));
-    	//配置应用的主方法所在的类    
+    	//配置应用的主方法所在的类，找到main方法//4
     	this.mainApplicationClass = this.deduceMainApplicationClass();
     }
 
@@ -156,6 +156,7 @@ return value.toString();
         ClassLoader classLoader = this.getClassLoader();
         //从配置文件中，获取springFactory的名字 goto3
         Set<String> names = new LinkedHashSet(SpringFactoriesLoader.loadFactoryNames(type, classLoader));
+        //然后实例化 反射
         List<T> instances = this.createSpringFactoriesInstances(type, parameterTypes, classLoader, args, names);
         AnnotationAwareOrderComparator.sort(instances);
         return instances;
@@ -170,6 +171,25 @@ return value.toString();
         //loadSpringFactories这个方法，去读了spring.factories
         //从spring.factories拿到我们这次要的factoryNames
         return (List)loadSpringFactories(classLoader).getOrDefault(factoryClassName, Collections.emptyList());
+    }
+
+	private Class<?> deduceMainApplicationClass() {
+        try {
+            //new了个异常，根据堆栈信息去找main方法，牛逼呀
+            StackTraceElement[] stackTrace = (new RuntimeException()).getStackTrace();
+            StackTraceElement[] var2 = stackTrace;
+            int var3 = stackTrace.length;
+
+            for(int var4 = 0; var4 < var3; ++var4) {
+                StackTraceElement stackTraceElement = var2[var4];
+                if ("main".equals(stackTraceElement.getMethodName())) {
+                    return Class.forName(stackTraceElement.getClassName());
+                }
+            }
+        } catch (ClassNotFoundException var6) {
+        }
+
+        return null;
     }
 
 ```
@@ -199,7 +219,9 @@ public ConfigurableApplicationContext run(String... args) {
         //1、这个是一个计时器，没什么好说的
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
+    	//应用上下文
 		ConfigurableApplicationContext context = null;
+    	//异常报告
 		Collection<SpringBootExceptionReporter> exceptionReporters = new ArrayList<>();
 		
     
@@ -209,6 +231,7 @@ public ConfigurableApplicationContext run(String... args) {
  
         //3、获取事件监听器SpringApplicationRunListener类型，并且执行starting()方法-->
 		SpringApplicationRunListeners listeners = getRunListeners(args);
+    	//抛出一个starting事件
 		listeners.starting();
  
 		try {
@@ -219,10 +242,11 @@ public ConfigurableApplicationContext run(String... args) {
 					args);
  
             //5、这个很重要准备环境了，并且把环境跟spring上下文绑定好，并且执行environmentPrepared()方法-->
+            //6、判断一些环境的值，并设置一些环境的值-->
 			ConfigurableEnvironment environment = prepareEnvironment(listeners,
 					applicationArguments);
  
-            //6、判断一些环境的值，并设置一些环境的值-->
+            //忽略的bean
 			configureIgnoreBeanInfo(environment);
  
             //7、打印banner-->
@@ -248,6 +272,7 @@ public ConfigurableApplicationContext run(String... args) {
  
             //11、这个是spring启动的代码了，这里就回去里面就回去扫描并且初始化单实列bean了-->
             //这个refreshContext()加载了bean，还启动了内置web容器，需要细细的去看看
+            //调用到了AbstractApplicationContext的refresh。spring的bean加载
 			refreshContext(context);
  
             //12、啥事情都没有做-->
@@ -271,7 +296,43 @@ public ConfigurableApplicationContext run(String... args) {
 		}
 		listeners.running(context);
 		return context;
+    
+    //10 准备上下文
+    private void prepareContext(ConfigurableApplicationContext context, ConfigurableEnvironment environment, SpringApplicationRunListeners listeners, ApplicationArguments applicationArguments, Banner printedBanner) {
+        context.setEnvironment(environment);//准备环境
+        this.postProcessApplicationContext(context);//前置处理，准备一些提前需要准备的上下文内容。beanNameGenerator resourceLoader等
+        this.applyInitializers(context);
+        listeners.contextPrepared(context);//【事件】上下文ready了
+        if (this.logStartupInfo) {
+            this.logStartupInfo(context.getParent() == null);
+            this.logStartupProfileInfo(context);
+        }
+
+        ConfigurableListableBeanFactory beanFactory = context.getBeanFactory();//获取关键工厂！ DefaultListableBeanFactory
+        beanFactory.registerSingleton("springApplicationArguments", applicationArguments);//注册单例对象
+        if (printedBanner != null) {
+            beanFactory.registerSingleton("springBootBanner", printedBanner);//注册单例对象
+        }
+
+        if (beanFactory instanceof DefaultListableBeanFactory) {
+            ((DefaultListableBeanFactory)beanFactory).setAllowBeanDefinitionOverriding(this.allowBeanDefinitionOverriding);
+        }
+
+        Set<Object> sources = this.getAllSources();
+        Assert.notEmpty(sources, "Sources must not be empty");
+        this.load(context, sources.toArray(new Object[0]));//关键方法，扫描到启动类上面的@Component注解，注册为bean
+        listeners.contextLoaded(context);//【事件】主类bean加载好了
+    }
 ```
+
+- 怎么理解Enviroment
+  - 环境，包含系统环境（jdk环境，系统环境）等
+- ApplicationContext是继承BeanFactory的
+  - BeanFactory定义了方法，getbean
+- 怎么理解上下文
+  - 容器
+
+
 
 #### 配置类
 
