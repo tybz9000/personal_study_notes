@@ -220,6 +220,20 @@ static final int tableSizeFor(int cap) {
     }
 ```
 
+#### ConcurrentHashMap
+
+- 线程安全版本的hashmap
+  - 1.7实现：多重数组实现桶
+    - 两次hash找到链表
+      - 第一次找到segment，
+      - 第二次找到segment下的链表
+    - 最外层桶每个节点是带锁的
+    - segment默认16个，不会随着扩容而扩容
+  - 1.8实现：直接在头节点上加锁
+- 不允许存入null值
+  - 二义性问题，查到Null，是不存在，还是本来就是Null呢？
+    - hashmap不怕，单线程嘛，查下就好了
+
 ### Hashtable
 
 - Hashtable是synchronized的，适用于多线程环境；hashmap不是同步的，适用于单线程环境

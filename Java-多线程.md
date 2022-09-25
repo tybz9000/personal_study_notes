@@ -1,4 +1,4 @@
-## 多线程
+# 多线程
 
 并发编程三要素
 
@@ -318,31 +318,92 @@ Java允许任何对象都可以成为一个锁也叫做对象监视器
 - dumpStack()
   - 输出栈信息
   
-- #### Synchronized
-  
+
+# java多线程机制
+
+while true锁
+
+```
+public TaiLock {
+	public static boolean locked = false;
+	
+	public void lock() {
+		//刚开始进来的时候，没人加锁，自身不被阻塞
+		while(locked) {
+			
+		}
+		//加锁阻塞别人
+		locked = true;
+	}
+	
+	public void unlock() {
+		//释放锁
+		locked = false;
+	}
+}
+```
+
+
+
+### Synchronized
+
   **java内置锁**
-  
+
   - 代码块
   - 方法：作用于实例，不参与继承，父类方法有，也没法继承到子类，
   - 静态方法：作用于类，作用到所有访问到这个类的对象
   - 类：作用于类，类似于静态方法，也是给整个类加锁
-  
+
   进入同步代码块、同步类时获取**对象**内置锁
-  
+
   是互斥锁，如果另外一个线程要获得这个锁，必须阻塞（Blocked）等待
-  
+
+### ReentrantLock
+
+可重入的互斥锁面具有和synchronized相同的功能，但是更加灵活
+
+实现了Lock接口
+
+```
+- void lock();//加锁
+- void lockInterruptlbly();
+- boolean tryLock();//
+- boolean tryLock(time, unit);
+- void unlock();//解锁
+```
+
+底层有**公平锁**和**非公平锁**的实现
+
+默认是非公平锁
+
+使用了CAS的思想
+
+```
+unsafe是个工具单例
+Unsafe.compareAndSwapInt()
+public final native boolean compareAndSwapInt(Object o, long offset,
+                                              int expected,
+                                              int x);
+对于对象o 偏移量offset的值，与exptected比较，如果相等，则赋值x
+用途是保证无锁并发安全性
+获取offset
+unsafe.objectFieldOffset(clz.getDeclaredField("field名"))
+```
+
+
+
   #### 锁
-  
+
   ##### 乐观vs悲观
-  
+
   - 乐观锁：要加锁的不一定会被改，改了我再说。记录更新id之类的
     - 多读、乐观锁
     - CAS：比较并交换，操作前拿出值，我现在要写的时候，原值拿出来再比较，不变则操作，否则失败。
   - 悲观锁：要加锁的一定是有人要改的，都锁住，谁也不能动。（synchronized、Lock）
     - 多写、悲观锁
-  
+
   ##### 独享锁vs共享锁
-  
+
   - 独享锁：锁同时只能被一个线程持有
   
     - 往往用作写锁
@@ -353,33 +414,39 @@ Java允许任何对象都可以成为一个锁也叫做对象监视器
   
     - ReadWriteLock：读写锁
     - ReenTrantLock：
-  
-  ### 线程池
-  
+
+  # 线程池
+
   线程池可以看做是线程的**集合**，在没有任务时，线程处于空闲状态。请求到来时，线程池给请求分配一个空闲的线程，请求完成后，线程回到线程池中，这样就完成了线程的**重用**
-  
+
   ​	减少了线程总的生命周期开销
-  
+
   **核心线程**：永不回收的线程
-  
+
   **阻塞队列**：干不完的活儿
-  
+
   **非核心线程**：忙碌的时候使用的线程
-  
+
   **空闲时间**：非核心线程空闲到一定时间后，回收
-  
+
   **饱和策略**：
-  
+
   - AbortPolicy(抛出一个异常，默认的)
   - DiscardPolicy(新提交的任务直接被抛弃)
   - DiscardOldestPolicy（丢弃队列里最老的任务，将当前这个任务继续提交给线程池）
   - CallerRunsPolicy（交给线程池调用所在的线程进行处理，即将某些任务回退到调用者)
-  
+
   ![image-20210705204424134](C:\Users\taiyang\Documents\image-20210705204424134.png)
 
 # 线程池
 
 *线程池*是一种多线程处理形式，处理过程中将任务添加到队列，然后在创建线程后自动启动这些任务
+
+- 线程池是通过队列+线程实现的
+- 线程数<corePoolSize，来则新增
+- corePoolSize<线程数<缓冲队列workQueue上限，放在缓冲队列workQueue中
+- 再多就要通过hander来处理掉了
+- 核心线程数<线程数，如果线程空闲时间超过keepAliveTime，线程被回收，给缓冲队列的腾位置
 
 #### 线程池的优势
 
