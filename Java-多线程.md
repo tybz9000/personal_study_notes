@@ -1,4 +1,4 @@
-# 多线程
+## 多线程
 
 并发编程三要素
 
@@ -298,18 +298,22 @@ Java允许任何对象都可以成为一个锁也叫做对象监视器
 
 - static currentThread()
   - 获取当前线程
+  
 - static yield()
   - 线程礼让
   - 执行到待执行
   - 如果cpu认为接下来还要执行这个，那么就会执行这个
+  
 - static sleep(long millis)
   - 当前线程睡眠
+  
 - interrupt()
   - 设置线程中断位
   - 处于阻塞状态的线程（被wait()，join()，sleep()阻塞的线程），会抛出异常，把中断状态掰回去
     - 其实是唤醒了阻塞中的线程
     - 不会中断运行中的线程
     - 一个线程不该由其他线程来强制中断或停止。这个方法只是通知线程应该中断了
+  
 - join()
   - 外部线程等待主线程完成
     - 调用后外部线程开始等待，状态是TIMED_WAITING
@@ -318,34 +322,7 @@ Java允许任何对象都可以成为一个锁也叫做对象监视器
 - dumpStack()
   - 输出栈信息
   
-
-# java多线程机制
-
-while true锁
-
-```
-public TaiLock {
-	public static boolean locked = false;
-	
-	public void lock() {
-		//刚开始进来的时候，没人加锁，自身不被阻塞
-		while(locked) {
-			
-		}
-		//加锁阻塞别人
-		locked = true;
-	}
-	
-	public void unlock() {
-		//释放锁
-		locked = false;
-	}
-}
-```
-
-
-
-### Synchronized
+## Synchronized
 
   **java内置锁**
 
@@ -358,39 +335,14 @@ public TaiLock {
 
   是互斥锁，如果另外一个线程要获得这个锁，必须阻塞（Blocked）等待
 
-### ReentrantLock
+**实现原理**
 
-可重入的互斥锁面具有和synchronized相同的功能，但是更加灵活
+字节码上填充
 
-实现了Lock接口
+- monitorenter
+- monitorexit
 
-```
-- void lock();//加锁
-- void lockInterruptlbly();
-- boolean tryLock();//
-- boolean tryLock(time, unit);
-- void unlock();//解锁
-```
-
-底层有**公平锁**和**非公平锁**的实现
-
-默认是非公平锁
-
-使用了CAS的思想
-
-```
-unsafe是个工具单例
-Unsafe.compareAndSwapInt()
-public final native boolean compareAndSwapInt(Object o, long offset,
-                                              int expected,
-                                              int x);
-对于对象o 偏移量offset的值，与exptected比较，如果相等，则赋值x
-用途是保证无锁并发安全性
-获取offset
-unsafe.objectFieldOffset(clz.getDeclaredField("field名"))
-```
-
-
+依赖操作系统底层互斥锁实现
 
   #### 锁
 
@@ -415,7 +367,7 @@ unsafe.objectFieldOffset(clz.getDeclaredField("field名"))
     - ReadWriteLock：读写锁
     - ReenTrantLock：
 
-  # 线程池
+  ### 线程池
 
   线程池可以看做是线程的**集合**，在没有任务时，线程处于空闲状态。请求到来时，线程池给请求分配一个空闲的线程，请求完成后，线程回到线程池中，这样就完成了线程的**重用**
 
@@ -441,12 +393,6 @@ unsafe.objectFieldOffset(clz.getDeclaredField("field名"))
 # 线程池
 
 *线程池*是一种多线程处理形式，处理过程中将任务添加到队列，然后在创建线程后自动启动这些任务
-
-- 线程池是通过队列+线程实现的
-- 线程数<corePoolSize，来则新增
-- corePoolSize<线程数<缓冲队列workQueue上限，放在缓冲队列workQueue中
-- 再多就要通过hander来处理掉了
-- 核心线程数<线程数，如果线程空闲时间超过keepAliveTime，线程被回收，给缓冲队列的腾位置
 
 #### 线程池的优势
 
